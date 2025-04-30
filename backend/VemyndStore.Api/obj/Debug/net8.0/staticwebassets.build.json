@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "DUpW6Z7pkUs4I4NnvVuiohbuDHKbqwbqKT01kA0pujI=",
+  "Source": "VemyndStore.Api",
+  "BasePath": "_content/VemyndStore.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
