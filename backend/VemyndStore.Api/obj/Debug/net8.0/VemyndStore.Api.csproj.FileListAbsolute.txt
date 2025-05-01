@@ -5,6 +5,7 @@
 /root/projetos/vemynd-store/backend/VemyndStore.Api/obj/Debug/net8.0/VemyndStore.Api.csproj.CoreCompileInputs.cache
 /root/projetos/vemynd-store/backend/VemyndStore.Api/obj/Debug/net8.0/VemyndStore.Api.MvcApplicationPartsAssemblyInfo.cs
 /root/projetos/vemynd-store/backend/VemyndStore.Api/obj/Debug/net8.0/VemyndStore.Api.MvcApplicationPartsAssemblyInfo.cache
+/root/projetos/vemynd-store/backend/VemyndStore.Api/obj/Debug/net8.0/VemyndStore.Api.sourcelink.json
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/appsettings.Development.json
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/appsettings.json
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/VemyndStore.Api
@@ -12,6 +13,7 @@
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/VemyndStore.Api.runtimeconfig.json
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/VemyndStore.Api.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/VemyndStore.Api.pdb
+/root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/DotNetEnv.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Humanizer.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Microsoft.AspNetCore.OpenApi.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Microsoft.Bcl.AsyncInterfaces.dll
@@ -47,6 +49,7 @@
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Mono.TextTemplating.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/MySqlConnector.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Pomelo.EntityFrameworkCore.MySql.dll
+/root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Sprache.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Swashbuckle.AspNetCore.Swagger.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Swashbuckle.AspNetCore.SwaggerGen.dll
 /root/projetos/vemynd-store/backend/VemyndStore.Api/bin/Debug/net8.0/Swashbuckle.AspNetCore.SwaggerUI.dll

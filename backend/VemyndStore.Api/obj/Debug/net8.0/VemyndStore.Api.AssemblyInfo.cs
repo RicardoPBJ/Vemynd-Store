@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VemyndStore.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e0f378691e5550ba8d5962c7fd3b5ea30294769c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+648fb42e9f1e87f3ce42f1d11ae7cf3361a02d01")]
 [assembly: System.Reflection.AssemblyProductAttribute("VemyndStore.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VemyndStore.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
