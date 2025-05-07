@@ -1,9 +1,8 @@
 using DotNetEnv;
-using MySqlConnector;
 using Microsoft.EntityFrameworkCore;
 using VemyndStore.Api.Data;
 
-public class Program // Torne a classe Program pública
+public class Program
 {
     public static void Main(string[] args)
     {
@@ -17,26 +16,33 @@ public class Program // Torne a classe Program pública
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
- 
+
         // Configuração da string de conexão com o banco de dados.
         var connectionString = $"Server={Environment.GetEnvironmentVariable("DB_HOST")};Port=3306;Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Uid={Environment.GetEnvironmentVariable("DB_USER")};Pwd={Environment.GetEnvironmentVariable("DB_PASSWORD")};";
 
-        // Testa a conexão com o banco de dados para garantir que está funcionando.
-        try
+        // Configuração do DbContext para acesso ao banco de dados.
+        if (builder.Environment.IsEnvironment("Testing")) // Verifica se o ambiente é de testes
         {
-            using var connection = new MySqlConnector.MySqlConnection(connectionString);
-            connection.Open();
-            Console.WriteLine("Conexão com o banco de dados bem-sucedida!");
+            // Usa banco de dados em memória para testes
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseInMemoryDatabase("TestDatabase"));
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Erro ao conectar ao banco de dados: {ex.Message}");
-            Environment.Exit(1); // Encerra o aplicativo se a conexão falhar.
+            // Usa o banco de dados MySQL para desenvolvimento e produção
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
         }
 
-        // Configuração do DbContext para acesso ao banco de dados.
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        // Configura o Kestrel para usar HTTP e HTTPS
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenLocalhost(6000); // Porta HTTP
+            options.ListenLocalhost(6001, listenOptions =>
+            {
+                listenOptions.UseHttps(); // Porta HTTPS
+            });
+        });
 
         // Constrói o aplicativo com base nas configurações definidas.
         var app = builder.Build();
@@ -48,9 +54,14 @@ public class Program // Torne a classe Program pública
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
+        // Desativa o redirecionamento HTTPS no ambiente de testes
+        if (!app.Environment.IsEnvironment("Testing"))
+        {
+            app.UseHttpsRedirection();
+        }
+
         app.UseAuthorization();
-        app.MapControllers();
+        app.MapControllers(); // Garante que os controladores sejam mapeados
         app.Run();
     }
 }
