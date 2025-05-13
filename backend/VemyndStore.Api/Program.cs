@@ -13,25 +13,6 @@ public class Program
         // Criação do builder para configurar e construir o aplicativo web.
         var builder = WebApplication.CreateBuilder(args);
 
-        // Configuração explícita para HTTPS com certificado
-        builder.WebHost.ConfigureKestrel(options =>
-        {
-            options.ListenAnyIP(5000); // HTTP
-            options.ListenAnyIP(5001, listenOptions =>
-            {
-                // Configuração de HTTPS usando o certificado PFX
-                listenOptions.UseHttps(httpsOptions =>
-                {
-                    var certPath = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path") 
-                        ?? "/root/.aspnet/https/aspnetapp.pfx";
-                    var certPassword = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password") 
-                        ?? "certifypsw";
-                    
-                    httpsOptions.ServerCertificate = new X509Certificate2(certPath, certPassword);
-                });
-            });
-        });
-
         // Adiciona serviços ao contêiner de injeção de dependência.
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
