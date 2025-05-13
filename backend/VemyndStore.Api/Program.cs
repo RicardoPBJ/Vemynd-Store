@@ -1,16 +1,36 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using VemyndStore.Api.Data;
+using System.Security.Cryptography.X509Certificates;
 
 public class Program
 {
     public static void Main(string[] args)
     {
         // Carrega as variáveis de ambiente do arquivo .env
-        DotNetEnv.Env.Load("/root/projetos/vemynd-store/.env");
+        DotNetEnv.Env.Load();
 
         // Criação do builder para configurar e construir o aplicativo web.
         var builder = WebApplication.CreateBuilder(args);
+
+        // Configuração explícita para HTTPS com certificado
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(5000); // HTTP
+            options.ListenAnyIP(5001, listenOptions =>
+            {
+                // Configuração de HTTPS usando o certificado PFX
+                listenOptions.UseHttps(httpsOptions =>
+                {
+                    var certPath = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path") 
+                        ?? "/root/.aspnet/https/aspnetapp.pfx";
+                    var certPassword = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password") 
+                        ?? "certifypsw";
+                    
+                    httpsOptions.ServerCertificate = new X509Certificate2(certPath, certPassword);
+                });
+            });
+        });
 
         // Adiciona serviços ao contêiner de injeção de dependência.
         builder.Services.AddControllers();
@@ -34,22 +54,13 @@ public class Program
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
         }
 
-        // Configura o Kestrel para usar HTTP e HTTPS
-        builder.WebHost.ConfigureKestrel(options =>
-        {
-            options.ListenLocalhost(6000); // Porta HTTP
-            options.ListenLocalhost(6001, listenOptions =>
-            {
-                listenOptions.UseHttps(); // Porta HTTPS
-            });
-        });
-
         // Constrói o aplicativo com base nas configurações definidas.
         var app = builder.Build();
 
         // Configuração do pipeline de requisições HTTP.
         if (app.Environment.IsDevelopment())
         {
+            // Habilita o Swagger apenas no ambiente de desenvolvimento
             app.UseSwagger();
             app.UseSwaggerUI();
         }
@@ -60,8 +71,13 @@ public class Program
             app.UseHttpsRedirection();
         }
 
+        // Configura o middleware de autorização
         app.UseAuthorization();
-        app.MapControllers(); // Garante que os controladores sejam mapeados
+
+        // Mapeia os controladores para os endpoints
+        app.MapControllers();
+
+        // Inicia o aplicativo
         app.Run();
     }
 }
