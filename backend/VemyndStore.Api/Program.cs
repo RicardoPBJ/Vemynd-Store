@@ -1,9 +1,15 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using VemyndStore.Api.Data;
+using FluentValidation;
+using VemyndStore.Api.Validators;
 
 public class Program
 {
+    /// <summary>
+    /// Ponto de entrada da aplicação ASP.NET Core.
+    /// Responsável por configurar serviços, middlewares e iniciar o servidor web.
+    /// </summary>
     public static void Main(string[] args)
     {
         // Carrega as variáveis de ambiente do arquivo .env
@@ -12,8 +18,12 @@ public class Program
         // Criação do builder para configurar e construir o aplicativo web.
         var builder = WebApplication.CreateBuilder(args);
 
-        // Adiciona serviços ao contêiner de injeção de dependência.
+        // Adiciona serviços ao contêiner de injeção de dependência
         builder.Services.AddControllers();
+
+        // Configuração recomendada do FluentValidation
+        builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -21,7 +31,7 @@ public class Program
         var connectionString = $"Server={Environment.GetEnvironmentVariable("DB_HOST")};Port=3306;Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Uid={Environment.GetEnvironmentVariable("DB_USER")};Pwd={Environment.GetEnvironmentVariable("DB_PASSWORD")};";
 
         // Configuração do DbContext para acesso ao banco de dados.
-        if (builder.Environment.IsEnvironment("Testing")) // Verifica se o ambiente é de testes
+        if (builder.Environment.IsEnvironment("Testing"))
         {
             // Usa banco de dados em memória para testes
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
