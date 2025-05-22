@@ -2,7 +2,9 @@ using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using VemyndStore.Api.Data;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using VemyndStore.Api.Validators;
+using VemyndStore.Api.Middleware;
 
 public class Program
 {
@@ -21,8 +23,11 @@ public class Program
         // Adiciona serviços ao contêiner de injeção de dependência
         builder.Services.AddControllers();
 
-        // Configuração recomendada do FluentValidation
-        builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
+        // Adiciona serviços de validação com FluentValidation
+        // Configura o FluentValidation para validar modelos automaticamente 
+        builder.Services.AddFluentValidationAutoValidation();
+        builder.Services.AddFluentValidationClientsideAdapters();
+        builder.Services.AddValidatorsFromAssemblyContaining<VemyndStore.Api.Validators.ProductValidator>();
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -35,7 +40,7 @@ public class Program
         {
             // Usa banco de dados em memória para testes
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase("TestDatabase"));
+                options.UseInMemoryDatabase(Guid.NewGuid().ToString()), ServiceLifetime.Scoped);
         }
         else
         {
@@ -46,6 +51,9 @@ public class Program
 
         // Constrói o aplicativo com base nas configurações definidas.
         var app = builder.Build();
+        
+        // Configuração do middleware de tratamento de exceções
+        app.UseMiddleware<ExceptionMiddleware>();
 
         // Configuração do pipeline de requisições HTTP.
         if (app.Environment.IsDevelopment())
