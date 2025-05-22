@@ -15,6 +15,10 @@ namespace VemyndStore.Api.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Id)
+                .ValueGeneratedOnAdd();
+
             modelBuilder.Entity<Product>().HasData(
                 new Product
                 {
