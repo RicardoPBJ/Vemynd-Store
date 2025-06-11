@@ -5,6 +5,10 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using VemyndStore.Api.Validators;
 using VemyndStore.Api.Middleware;
+using VemyndStore.Api.Repositories;
+using VemyndStore.Api.Repositories.Interfaces;
+using VemyndStore.Api.Services;
+using VemyndStore.Api.Controllers;
 
 public class Program
 {
@@ -15,7 +19,7 @@ public class Program
     public static void Main(string[] args)
     {
         // Carrega as variáveis de ambiente do arquivo .env
-        DotNetEnv.Env.Load();
+        DotNetEnv.Env.Load("../../.env");
 
         // Criação do builder para configurar e construir o aplicativo web.
         var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +28,6 @@ public class Program
         builder.Services.AddControllers();
 
         // Adiciona serviços de validação com FluentValidation
-        // Configura o FluentValidation para validar modelos automaticamente 
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddFluentValidationClientsideAdapters();
         builder.Services.AddValidatorsFromAssemblyContaining<VemyndStore.Api.Validators.ProductValidator>();
@@ -32,15 +35,23 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        // Registro do repositório e do service de produtos
+        builder.Services.AddScoped<IProductRepository, ProductRepository>();
+        builder.Services.AddScoped<IProductService, ProductService>();
+
         // Configuração da string de conexão com o banco de dados.
         var connectionString = $"Server={Environment.GetEnvironmentVariable("DB_HOST")};Port=3306;Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Uid={Environment.GetEnvironmentVariable("DB_USER")};Pwd={Environment.GetEnvironmentVariable("DB_PASSWORD")};";
 
         // Configuração do DbContext para acesso ao banco de dados.
         if (builder.Environment.IsEnvironment("Testing"))
         {
+            builder.Services.AddControllers()
+                .AddApplicationPart(typeof(TestController).Assembly);
+    
             // Usa banco de dados em memória para testes
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseInMemoryDatabase(Guid.NewGuid().ToString()), ServiceLifetime.Scoped);
+            
         }
         else
         {
@@ -62,9 +73,10 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        
 
-        // Desativa o redirecionamento HTTPS no ambiente de testes
-        if (!app.Environment.IsEnvironment("Testing"))
+        // Desativa o redirecionamento HTTPS no ambiente de testes e desenvolvimento
+        if (!app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Testing"))
         {
             app.UseHttpsRedirection();
         }
