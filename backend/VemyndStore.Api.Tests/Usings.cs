@@ -5,3 +5,6 @@ global using VemyndStore.Api.Data.Models;
 global using VemyndStore.Api.Validators;
 global using VemyndStore.Api.Exceptions;
 global using VemyndStore.Api.Middleware;
+global using VemyndStore.Api.Repositories.Interfaces;
+global using VemyndStore.Api.Services;
+global using VemyndStore.Api.Repositories;

@@ -20,11 +20,14 @@ namespace VemyndStore.Api.Tests.Validators
         [Fact]
         public void Deve_Falhar_Se_Nome_For_Vazio()
         {
+            // Arrange
             var product = ProdutoValido();
             product.Name = "";
 
+            // Act
             var result = _validator.Validate(product);
 
+            // Assert
             result.IsValid.Should().BeFalse();
             result.Errors.Should().Contain(e => e.PropertyName == "Name");
         }
@@ -35,11 +38,14 @@ namespace VemyndStore.Api.Tests.Validators
         [Fact]
         public void Deve_Falhar_Se_Preco_For_Menor_Ou_Igual_A_Zero()
         {
+            // Arrange
             var product = ProdutoValido();
             product.Price = 0;
 
+            // Act
             var result = _validator.Validate(product);
 
+            // Assert
             result.IsValid.Should().BeFalse();
             result.Errors.Should().Contain(e => e.PropertyName == "Price");
         }
@@ -50,11 +56,14 @@ namespace VemyndStore.Api.Tests.Validators
         [Fact]
         public void Deve_Falhar_Se_ReleaseDate_For_Antes_De_2001()
         {
+            // Arrange
             var product = ProdutoValido();
             product.ReleaseDate = new DateTime(1999, 12, 31);
 
+            // Act
             var result = _validator.Validate(product);
 
+            // Assert
             result.IsValid.Should().BeFalse();
             result.Errors.Should().Contain(e => e.PropertyName == "ReleaseDate");
         }
@@ -65,11 +74,14 @@ namespace VemyndStore.Api.Tests.Validators
         [Fact]
         public void Deve_Falhar_Se_Weight_For_Menor_Ou_Igual_A_Zero()
         {
+            // Arrange
             var product = ProdutoValido();
             product.Weight = 0;
 
+            // Act
             var result = _validator.Validate(product);
 
+            // Assert
             result.IsValid.Should().BeFalse();
             result.Errors.Should().Contain(e => e.PropertyName == "Weight");
         }
@@ -80,12 +92,15 @@ namespace VemyndStore.Api.Tests.Validators
         [Fact]
         public void Deve_Falhar_Se_Touchscreen_Sem_DisplayResolution()
         {
+            // Arrange
             var product = ProdutoValido();
             product.IsTouchscreen = true;
             product.DisplayResolution = "";
 
+            // Act
             var result = _validator.Validate(product);
 
+            // Assert
             result.IsValid.Should().BeFalse();
             result.Errors.Should().Contain(e => e.PropertyName == "DisplayResolution");
         }
@@ -96,12 +111,15 @@ namespace VemyndStore.Api.Tests.Validators
         [Fact]
         public void Deve_Falhar_Se_Preco_Maior_Que_10000_Sem_Brand()
         {
+            // Arrange
             var product = ProdutoValido();
             product.Price = 15000;
             product.Brand = "";
 
+            // Act
             var result = _validator.Validate(product);
 
+            // Assert
             result.IsValid.Should().BeFalse();
             result.Errors.Should().Contain(e => e.PropertyName == "Brand");
         }
@@ -112,11 +130,14 @@ namespace VemyndStore.Api.Tests.Validators
         [Fact]
         public void Deve_Falhar_Se_ImageUrl_For_Invalida()
         {
+            // Arrange
             var product = ProdutoValido();
             product.ImageUrl = "imagem_invalida.jpg";
 
+            // Act
             var result = _validator.Validate(product);
 
+            // Assert
             result.IsValid.Should().BeFalse();
             result.Errors.Should().Contain(e => e.PropertyName == "ImageUrl");
         }
@@ -127,10 +148,13 @@ namespace VemyndStore.Api.Tests.Validators
         [Fact]
         public void Deve_Passar_Se_Tudo_Valido()
         {
+            // Arrange
             var product = ProdutoValido();
 
+            // Act
             var result = _validator.Validate(product);
 
+            // Assert
             result.IsValid.Should().BeTrue();
         }
 
