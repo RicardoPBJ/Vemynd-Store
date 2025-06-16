@@ -1,1 +1,6 @@
 .env
+.node_modules
+VemyndStore.Api/bin/
+VemyndStore.Api/obj/
+VemyndStore.Api.Tests/bin/
+VemyndStore.Api.Tests/obj/

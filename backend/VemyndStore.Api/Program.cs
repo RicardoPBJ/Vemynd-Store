@@ -1,63 +1,81 @@
 using DotNetEnv;
-using MySqlConnector;
 using Microsoft.EntityFrameworkCore;
 using VemyndStore.Api.Data;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using VemyndStore.Api.Validators;
+using VemyndStore.Api.Middleware;
 
-// Carrega as variáveis de ambiente do arquivo .env
-DotNetEnv.Env.Load("/root/projetos/vemynd-store/.env");
-
-// Criação do builder para configurar e construir o aplicativo web.
-var builder = WebApplication.CreateBuilder(args);
-
-// Adiciona serviços ao contêiner de injeção de dependência.
-// O AddControllers registra os controladores para lidar com as requisições HTTP.
-builder.Services.AddControllers();
-
-// Configuração para habilitar a documentação Swagger/OpenAPI.
-// O AddEndpointsApiExplorer fornece suporte para explorar os endpoints da API.
-// O AddSwaggerGen gera a documentação da API automaticamente.
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Configuração da string de conexão com o banco de dados.
-var connectionString = $"Server={Environment.GetEnvironmentVariable("DB_HOST")};Port=3306;Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Uid={Environment.GetEnvironmentVariable("DB_USER")};Pwd={Environment.GetEnvironmentVariable("DB_PASSWORD")};";
-// Testa a conexão com o banco de dados para garantir que está funcionando.
-try
+public class Program
 {
-    using var connection = new MySqlConnector.MySqlConnection(connectionString);
-    connection.Open();
-    Console.WriteLine("Conexão com o banco de dados bem-sucedida!");
+    /// <summary>
+    /// Ponto de entrada da aplicação ASP.NET Core.
+    /// Responsável por configurar serviços, middlewares e iniciar o servidor web.
+    /// </summary>
+    public static void Main(string[] args)
+    {
+        // Carrega as variáveis de ambiente do arquivo .env
+        DotNetEnv.Env.Load();
+
+        // Criação do builder para configurar e construir o aplicativo web.
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Adiciona serviços ao contêiner de injeção de dependência
+        builder.Services.AddControllers();
+
+        // Adiciona serviços de validação com FluentValidation
+        // Configura o FluentValidation para validar modelos automaticamente 
+        builder.Services.AddFluentValidationAutoValidation();
+        builder.Services.AddFluentValidationClientsideAdapters();
+        builder.Services.AddValidatorsFromAssemblyContaining<VemyndStore.Api.Validators.ProductValidator>();
+
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
+        // Configuração da string de conexão com o banco de dados.
+        var connectionString = $"Server={Environment.GetEnvironmentVariable("DB_HOST")};Port=3306;Database={Environment.GetEnvironmentVariable("DB_DATABASE")};Uid={Environment.GetEnvironmentVariable("DB_USER")};Pwd={Environment.GetEnvironmentVariable("DB_PASSWORD")};";
+
+        // Configuração do DbContext para acesso ao banco de dados.
+        if (builder.Environment.IsEnvironment("Testing"))
+        {
+            // Usa banco de dados em memória para testes
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseInMemoryDatabase(Guid.NewGuid().ToString()), ServiceLifetime.Scoped);
+        }
+        else
+        {
+            // Usa o banco de dados MySQL para desenvolvimento e produção
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        }
+
+        // Constrói o aplicativo com base nas configurações definidas.
+        var app = builder.Build();
+        
+        // Configuração do middleware de tratamento de exceções
+        app.UseMiddleware<ExceptionMiddleware>();
+
+        // Configuração do pipeline de requisições HTTP.
+        if (app.Environment.IsDevelopment())
+        {
+            // Habilita o Swagger apenas no ambiente de desenvolvimento
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        // Desativa o redirecionamento HTTPS no ambiente de testes
+        if (!app.Environment.IsEnvironment("Testing"))
+        {
+            app.UseHttpsRedirection();
+        }
+
+        // Configura o middleware de autorização
+        app.UseAuthorization();
+
+        // Mapeia os controladores para os endpoints
+        app.MapControllers();
+
+        // Inicia o aplicativo
+        app.Run();
+    }
 }
-catch (Exception ex)
-{
-    Console.WriteLine($"Erro ao conectar ao banco de dados: {ex.Message}");
-    Environment.Exit(1); // Encerra o aplicativo se a conexão falhar.
-}
-
-// Configuração do DbContext para acesso ao banco de dados.
-// Registra o ApplicationDbContext como um serviço que pode ser injetado em outras partes da aplicação.
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
-// Constrói o aplicativo com base nas configurações definidas.
-var app = builder.Build();
-
-// Configuração do pipeline de requisições HTTP.
-// Verifica se o ambiente é de desenvolvimento para habilitar o Swagger e a interface SwaggerUI.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger(); // Habilita o middleware do Swagger para gerar a documentação.
-    app.UseSwaggerUI(); // Habilita a interface gráfica do Swagger para explorar a API.
-}
-
-// Habilita o redirecionamento de requisições HTTP para HTTPS.
-app.UseHttpsRedirection();
-
-// Habilita a autorização para proteger os endpoints da API.
-app.UseAuthorization();
-
-// Mapeia os controladores para os endpoints definidos nos atributos dos controladores.
-app.MapControllers();
-
-// Inicia o aplicativo e começa a escutar requisições.
-app.Run();
